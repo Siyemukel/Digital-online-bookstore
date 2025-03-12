@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cart &mdash; DUT Library</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/cartstyle.css" />
+  </head>
+  <body>
+    <header class="header">
+      <a href="index.html">
+        <img class="logo" src="img/dut-logo.png" alt="Virt-TRAVEL logo" />
+      </a>
+
+      <nav class="main-nav">
+        <ul class="main-nav-list">
+          <li>
+            <a class="main-nav-link" href="index.html">Books</a>
+          </li>
+          <li>
+            <a class="main-nav-link" href="#">Contact</a>
+          </li>
+          <li>
+            <a class="main-nav-link" href="#">About</a>
+          </li>
+          <li>
+            <a class="main-nav-link" href="#">Orders</a>
+          </li>
+
+          <li>
+            <a class="main-nav-link nav-cta nav-cart" href="cart.html"
+              ><ion-icon class="nav-cart-icon" name="cart-outline"></ion-icon
+            ></a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <section class="cart">
+      <div class="cart-container">
+        <div class="cart-header">
+          <h1>Your cart</h1>
+          <div class="subtotal-container">
+            <div class="subtotal-text">
+              <p class="subtotal-label">Subtotal</p>
+              <p class="subtotal-price"><strong>R 1040.00</strong></p>
+            </div>
+            <button class="checkout-btn">
+              <ion-icon name="cart-outline"></ion-icon> Checkout
+            </button>
+          </div>
+        </div>
+
+        <div class="cart-items">
+          <div class="cart-item">
+            <img src="img/book.jpg" alt="Book Cover" />
+            <div class="item-details">
+              <h2>!Viva Mexico!</h2>
+              <p class="price">Price: R 520.00</p>
+              <p class="sku">SKU 9780241679883</p>
+            </div>
+            <div class="quantity-total">
+              <label for="quantity1">Quantity</label>
+              <select id="quantity1">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="3">4</option>
+                <option value="3">5</option>
+              </select>
+              <p class="total">R 520.00</p>
+            </div>
+            <ion-icon
+              name="close-circle-outline"
+              class="remove-icon"
+            ></ion-icon>
+          </div>
+
+          <div class="cart-item">
+            <img src="https://via.placeholder.com/100" alt="Book Cover" />
+            <div class="item-details">
+              <h2>Book</h2>
+              <p class="price">Price: R 520.00</p>
+              <p class="sku">SKU 9781234567890</p>
+            </div>
+            <div class="quantity-total">
+              <label for="quantity2">Quantity</label>
+              <select id="quantity2">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="3">4</option>
+                <option value="3">5</option>
+              </select>
+              <p class="total">R 520.00</p>
+            </div>
+            <ion-icon
+              name="close-circle-outline"
+              class="remove-icon"
+            ></ion-icon>
+          </div>
+        </div>
+        <div class="continue-shopping">
+          <a href="index.html">Continue Shopping &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
+  </body>
+</html>
