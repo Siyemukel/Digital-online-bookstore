@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Purchased Books</title>
+  </head>
+  <body>
+    <h1>My Purchased Books</h1>
+
+    {% if purchased_books %}
+    <ul>
+      {% for purchase in purchased_books %}
+      <li>
+        {{ purchase.book.title }} by {{ purchase.book.author }} purchased on the
+        {{ purchase.purchase_date.strftime('%B %d, %Y at %I:%M %p') }}
+        <!-- View Book Link -->
+        <a href="#" class="view-book">Open Book</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>You haven't purchased any books yet.</p>
+    {% endif %}
+
+    <a href="{{ url_for('books') }}">Browse More Books</a>
+  </body>
+</html>
