@@ -8,9 +8,6 @@ DATABASE = 'bookstore.db'
 def create_connection():
     return sqlite3.connect(DATABASE)
 
-########################################
-# Decorator ensuring a user is logged in
-########################################
 def user_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -20,18 +17,13 @@ def user_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-########################################
-# HELPER: Base64 filter for images
-########################################
+
 @user_bp.app_template_filter('b64encode')
 def b64encode_filter(binary_data):
     if binary_data is None:
         return ''
     return base64.b64encode(binary_data).decode('utf-8')
 
-########################################
-# 1) USER HOME (Your Original)
-########################################
 @user_bp.route('/user_home')
 @user_required
 def user_home():
@@ -45,7 +37,6 @@ def user_home():
     with create_connection() as conn:
         cursor = conn.cursor()
 
-        # 1) Latest Books (limit 5)
         cursor.execute("""
             SELECT id, title, price, cover_image, quantity, condition
             FROM books
@@ -54,7 +45,6 @@ def user_home():
         """)
         latest_books = cursor.fetchall()
 
-        # 2) Popular Books (limit 5)
         cursor.execute("""
             SELECT b.id, b.title, b.price, b.cover_image, b.quantity, b.condition,
                    COALESCE(SUM(pi.quantity), 0) as total_qty
@@ -66,7 +56,6 @@ def user_home():
         """)
         popular_books = cursor.fetchall()
 
-        # 3) Recommended Books (limit 5) based on category usage
         recommended_books = []
         cursor.execute("""
             SELECT b.category, SUM(pi.quantity) AS cat_qty
@@ -77,7 +66,7 @@ def user_home():
             GROUP BY b.category
             ORDER BY cat_qty DESC
         """, (user_id,))
-        cat_rows = cursor.fetchall()  # [(category, cat_qty), ...]
+        cat_rows = cursor.fetchall() 
         purchased_cats = [row[0] for row in cat_rows]
 
         if purchased_cats:
@@ -95,7 +84,6 @@ def user_home():
                 partial = cursor.fetchall()
                 recommended_books.extend(partial)
 
-            # if still fewer than 5
             needed = 5 - len(recommended_books)
             if needed > 0:
                 placeholders = ",".join("?" for _ in purchased_cats)
@@ -127,9 +115,6 @@ def user_home():
                            recommended_books=recommended_books,
                            has_categories=has_categories)
 
-########################################
-# 1B) USER HOME 2 (New Approach)
-########################################
 @user_bp.route('/user_home2')
 @user_required
 def user_home2():
@@ -142,7 +127,6 @@ def user_home2():
     with create_connection() as conn:
         c = conn.cursor()
 
-        # LATEST (all, sorted by id desc)
         c.execute("""
             SELECT id, title, price, cover_image, quantity, condition
             FROM books
@@ -151,7 +135,6 @@ def user_home2():
         latest_all = c.fetchall()
         latest_top5 = latest_all[:5]
 
-        # POPULAR (all, sorted by total purchased)
         c.execute("""
             SELECT b.id, b.title, b.price, b.cover_image, b.quantity, b.condition,
                    COALESCE(SUM(pi.quantity), 0) AS total_qty
@@ -163,7 +146,6 @@ def user_home2():
         popular_all = c.fetchall()
         popular_top5 = popular_all[:5]
 
-        # RECOMMENDED => simpler approach: exclude user-owned from popular
         c.execute("""
             SELECT DISTINCT pi.book_id
             FROM purchase_items pi
@@ -173,7 +155,6 @@ def user_home2():
         owned_rows = c.fetchall()
         owned_ids = [r[0] for r in owned_rows] if owned_rows else []
 
-        # fetch all popular
         rec_list = []
         for row in popular_all:
             if row[0] not in owned_ids:
@@ -186,9 +167,6 @@ def user_home2():
                            recommended_top5=recommended_top5
     )
 
-########################################
-# 2) VIEW ALL BOOKS (Newest first)
-########################################
 @user_bp.route('/all_books')
 @user_required
 def all_books():
@@ -202,9 +180,6 @@ def all_books():
         books = cursor.fetchall()
     return render_template('all_books.html', books=books)
 
-########################################
-# 3) VIEW POPULAR BOOKS
-########################################
 @user_bp.route('/popular_books')
 @user_required
 def popular_books():
@@ -221,9 +196,7 @@ def popular_books():
         books = cursor.fetchall()
     return render_template('popular_books.html', books=books)
 
-########################################
-# 4) RECOMMENDED BOOKS (View All)
-########################################
+
 @user_bp.route('/recommended_books')
 @user_required
 def recommended_books():
@@ -231,7 +204,6 @@ def recommended_books():
     with create_connection() as conn:
         cursor = conn.cursor()
 
-        # old logic with category usage
         cursor.execute("""
             SELECT b.category, SUM(pi.quantity) AS cat_qty
             FROM purchase_items pi
@@ -278,9 +250,7 @@ def recommended_books():
 
     return render_template('recommended_books.html', books=full_list, user_categories=purchased_cats, has_categories=has_categories)
 
-########################################
-# 5) BOOK DETAILS (with reviews)
-########################################
+
 @user_bp.route('/book_details/<int:book_id>')
 @user_required
 def book_details(book_id):
@@ -296,7 +266,6 @@ def book_details(book_id):
             flash("Book not found.")
             return redirect(url_for('user_bp.all_books'))
 
-        # fetch reviews
         cursor.execute("""
             SELECT r.id, r.rating, r.comment, r.created_at, u.email, pp.pic
             FROM reviews r
@@ -309,9 +278,6 @@ def book_details(book_id):
 
     return render_template('book_details.html', book=book, reviews=reviews)
 
-########################################
-# 6) ADD TO CART
-########################################
 @user_bp.route('/add_to_cart/<int:book_id>', methods=['POST'])
 @user_required
 def add_to_cart(book_id):
@@ -367,9 +333,6 @@ def add_to_cart(book_id):
 
     return redirect(request.referrer or url_for('user_bp.user_home'))
 
-########################################
-# 7) LIVE SEARCH FOR USER
-########################################
 @user_bp.route('/search_user_books')
 @user_required
 def search_user_books():
@@ -412,7 +375,7 @@ def search_user_books():
             cursor.execute(base_sql, (wildcard,))
             results = cursor.fetchall()
 
-        else:  # recommended or other scopes
+        else: 
             base_sql = """
                 SELECT id, title, price, cover_image
                 FROM books
@@ -433,9 +396,7 @@ def search_user_books():
 
     return jsonify(data)
 
-########################################
-# 8) MY PROFILE
-########################################
+
 @user_bp.route('/my_profile', methods=['GET', 'POST'])
 @user_required
 def my_profile():
@@ -447,12 +408,10 @@ def my_profile():
     with create_connection() as conn:
         cursor = conn.cursor()
 
-        # fetch from 'users'
         cursor.execute("SELECT email, password FROM users WHERE id=?", (user_id,))
         user_row = cursor.fetchone()
         user_email = user_row[0] if user_row else ''
-
-        # fetch from 'students'
+        
         cursor.execute("""
             SELECT first_name, last_name, phone
             FROM students
@@ -463,7 +422,6 @@ def my_profile():
         last_name = student_row[1] if student_row else ''
         phone = student_row[2] if student_row else ''
 
-        # fetch profile pic
         cursor.execute("SELECT pic FROM profile_pics WHERE user_id=?", (user_id,))
         pic_row = cursor.fetchone()
         profile_pic = pic_row[0] if pic_row else None
@@ -476,14 +434,12 @@ def my_profile():
             confirm_password = request.form.get('confirm_password')
             pic_file = request.files.get('profile_pic')
 
-            # update student info
             cursor.execute("""
                 UPDATE students
                 SET first_name=?, last_name=?, phone=?
                 WHERE user_id=?
             """, (new_first, new_last, new_phone, user_id))
 
-            # handle password
             if new_password:
                 if new_password != confirm_password:
                     flash("New password and Confirm password do not match.")
@@ -496,7 +452,6 @@ def my_profile():
                         WHERE id=?
                     """, (new_password, user_id))
 
-            # handle profile pic
             if pic_file and pic_file.filename:
                 pic_bytes = pic_file.read()
                 if pic_row:
@@ -515,7 +470,6 @@ def my_profile():
             flash("Profile updated successfully!")
             return redirect(url_for('user_bp.my_profile'))
 
-        # build the profile pic b64
         profile_pic_b64 = None
         if profile_pic:
             profile_pic_b64 = base64.b64encode(profile_pic).decode('utf-8')
