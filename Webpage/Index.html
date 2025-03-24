@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore Admin</title>
+    <link rel="stylesheet" href="Style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Manage Books</a></li>
+            <li><a href="#">Orders</a></li>
+            <li><a href="#">Users</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>DUT Bookstore Admin Dashboard</h1>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h3>Total Books</h3>
+                <p>120</p>
+            </div>
+            <div class="card">
+                <h3>Total Orders</h3>
+                <p>45</p>
+            </div>
+            <div class="card">
+                <h3>Total Users</h3>
+                <p>30</p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h2>Manage Books</h2>
+            <button id="add-book-btn" class="add-book">Add New Book</button>
+            <table>
+                <head>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </head>
+                <body id="book-table">
+                    <tr>
+                        <td>Platform Based Book</td>
+                        <td>John Doe</td>
+                        <td>R165</td>
+                        <td>
+                            <button class="edit">Edit</button>
+                            <button class="delete">Delete</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Research Skill</td>
+                        <td>Aphelele Bhengu</td>
+                        <td>R105</td>
+                        <td>
+                            <button class="edit">Edit</button>
+                            <button class="delete">Delete</button>
+                        </td>
+
+                        <tr>
+                            <td>Information Systems</td>
+                            <td>Akhona Simango</td>
+                            <td>R150</td>
+                            <td>
+                                <button class="edit">Edit</button>
+                                <button class="delete">Delete</button>
+                            </td>
+
+                            <tr>
+                                <td>Accounting Science</td>
+                                <td>Wiliam Cube</td>
+                                <td>R220</td>
+                                <td>
+                                    <button class="edit">Edit</button>
+                                    <button class="delete">Delete</button>
+                                </td>
+
+                                <tr>
+                                    <td>Drama Art</td>
+                                    <td>Bukhosi Khomo</td>
+                                    <td>R180</td>
+                                    <td>
+                                        <button class="edit">Edit</button>
+                                        <button class="delete">Delete</button>
+                                    </td>
+                    </tr>
+                </body>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
