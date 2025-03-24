@@ -8,7 +8,6 @@ book_bp = Blueprint('book_bp', __name__)
 DATABASE = 'bookstore.db'
 
 def create_connection():
-    """Helper to connect to SQLite DB."""
     conn = sqlite3.connect(DATABASE)
     return conn
 
@@ -16,9 +15,6 @@ def create_connection():
 # STAFF-REQUIRED DECORATOR
 ########################################
 def staff_required(f):
-    """
-    Decorator ensuring only staff or admin can access these routes.
-    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
@@ -38,9 +34,7 @@ def staff_required(f):
 ########################################
 @book_bp.app_template_filter('b64encode')
 def b64encode_filter(binary_data):
-    """
-    Converts BLOB bytes to a Base64 string for embedding in <img>.
-    """
+
     if binary_data is None:
         return ''
     return base64.b64encode(binary_data).decode('utf-8')
@@ -51,11 +45,6 @@ def b64encode_filter(binary_data):
 @book_bp.route('/add_book', methods=['GET', 'POST'])
 @staff_required
 def add_book():
-    """
-    Staff can add a new book. 
-    Must upload cover image and PDF (both stored as BLOB).
-    Also stores 'condition' and 'quantity'.
-    """
     if request.method == 'POST':
         title = request.form['title']
         author = request.form['author']
@@ -65,12 +54,12 @@ def add_book():
         condition = request.form['condition']
         quantity = request.form['quantity']
 
-        # Validate required fields
+       
         if not (title and author and price and quantity):
             flash("Title, Author, Price, and Quantity are required.")
             return redirect(url_for('book_bp.add_book'))
 
-        # Validate file fields
+        
         cover_file = request.files.get('cover_image')
         pdf_file = request.files.get('pdf_file')
 
@@ -81,7 +70,7 @@ def add_book():
         cover_bytes = cover_file.read()
         pdf_bytes = pdf_file.read()
 
-        # Insert into DB
+     
         with create_connection() as conn:
             cursor = conn.cursor()
             try:
@@ -108,10 +97,7 @@ def add_book():
 @book_bp.route('/manage_books', methods=['GET'])
 @staff_required
 def manage_books():
-    """
-    Displays all books in a table. 
-    Each row has an Edit button to modify details.
-    """
+    
     with create_connection() as conn:
         cursor = conn.cursor()
         # Now include 'quantity' in the query
@@ -129,10 +115,7 @@ def manage_books():
 @book_bp.route('/edit_book/<int:book_id>', methods=['GET', 'POST'])
 @staff_required
 def edit_book(book_id):
-    """
-    Allows staff to update book details (title, author, desc, category, price, condition, quantity)
-    and optionally replace the cover image. PDF is NOT updatable.
-    """
+   
     with create_connection() as conn:
         cursor = conn.cursor()
 
@@ -143,10 +126,7 @@ def edit_book(book_id):
             flash("Book not found.")
             return redirect(url_for('book_bp.manage_books'))
 
-        # book columns => 
-        # (id=0, title=1, author=2, description=3, category=4, price=5,
-        #  cover_image=6, pdf_file=7, created_at=8, condition=9, quantity=10)
-        # Adjust indices if your DB differs.
+       
 
         if request.method == 'POST':
             title = request.form['title']
