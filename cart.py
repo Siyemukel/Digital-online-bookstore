@@ -25,9 +25,7 @@ def user_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-########################################
-# VIEW CART
-########################################
+
 @cart_bp.route('/cart')
 @user_required
 def view_cart():
@@ -62,9 +60,6 @@ def view_cart():
     delivery_method = session.get('delivery_method', 'pickup')
     return render_template('cart.html', items=items, total=total, delivery_method=delivery_method)
 
-########################################
-# INCREASE QUANTITY
-########################################
 @cart_bp.route('/increase_quantity/<int:cart_item_id>', methods=['POST'])
 @user_required
 def increase_quantity(cart_item_id):
@@ -84,14 +79,12 @@ def increase_quantity(cart_item_id):
 
         cart_id, book_id, current_qty = row
 
-        # Verify ownership
         cursor.execute("SELECT user_id FROM cart WHERE id=?", (cart_id,))
         cart_owner = cursor.fetchone()
         if not cart_owner or cart_owner[0] != user_id:
             flash("Unauthorized action.")
             return redirect(url_for('cart_bp.view_cart'))
 
-        # Check book stock
         cursor.execute("SELECT quantity FROM books WHERE id=?", (book_id,))
         stock_row = cursor.fetchone()
         if not stock_row:
@@ -113,9 +106,7 @@ def increase_quantity(cart_item_id):
         conn.commit()
     return redirect(url_for('cart_bp.view_cart'))
 
-########################################
-# DECREASE QUANTITY
-########################################
+
 @cart_bp.route('/decrease_quantity/<int:cart_item_id>', methods=['POST'])
 @user_required
 def decrease_quantity(cart_item_id):
@@ -135,7 +126,6 @@ def decrease_quantity(cart_item_id):
 
         cart_id, book_id, current_qty = row
 
-        # Verify ownership
         cursor.execute("SELECT user_id FROM cart WHERE id=?", (cart_id,))
         cart_owner = cursor.fetchone()
         if not cart_owner or cart_owner[0] != user_id:
@@ -156,9 +146,6 @@ def decrease_quantity(cart_item_id):
         conn.commit()
     return redirect(url_for('cart_bp.view_cart'))
 
-########################################
-# REMOVE ITEM
-########################################
 @cart_bp.route('/remove_item/<int:cart_item_id>', methods=['POST'])
 @user_required
 def remove_item(cart_item_id):
@@ -183,9 +170,6 @@ def remove_item(cart_item_id):
         flash("Item removed.")
     return redirect(url_for('cart_bp.view_cart'))
 
-########################################
-# CLEAR CART
-########################################
 @cart_bp.route('/clear_cart', methods=['POST'])
 @user_required
 def clear_cart():
@@ -201,9 +185,7 @@ def clear_cart():
         flash("Cart cleared.")
     return redirect(url_for('cart_bp.view_cart'))
 
-########################################
-# SELECT DELIVERY METHOD
-########################################
+
 @cart_bp.route('/select_delivery_method', methods=['POST'])
 @user_required
 def select_delivery_method():
@@ -221,9 +203,6 @@ def select_delivery_method():
         # pickup
         return redirect(url_for('cart_bp.checkout'))
 
-########################################
-# ENTER ADDRESS PAGE
-########################################
 @cart_bp.route('/enter_address', methods=['GET', 'POST'])
 @user_required
 def enter_address():
@@ -237,16 +216,14 @@ def enter_address():
             flash("Please enter a delivery address.")
             return redirect(url_for('cart_bp.enter_address'))
 
-        # Store address in session
+        
         session['delivery_address'] = address
         return redirect(url_for('cart_bp.checkout'))
 
     # GET => show the address form
     return render_template('enter_address.html')
 
-########################################
-# PAYPAL CHECKOUT
-########################################
+
 @cart_bp.route('/checkout', methods=['GET', 'POST'])
 @user_required
 def checkout():
@@ -256,7 +233,6 @@ def checkout():
     """
     user_id = session['user_id']
 
-    # 1) Confirm the user has a cart
     with create_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT id FROM cart WHERE user_id=?", (user_id,))
@@ -275,7 +251,6 @@ def checkout():
         items = cursor.fetchall()
         subtotal = sum(item[1] * item[2] for item in items)
 
-    # 2) Check delivery or pickup
     method = session.get('delivery_method', 'pickup')
     delivery_fee = 0.0
     address = None
@@ -289,7 +264,6 @@ def checkout():
 
     total = subtotal + delivery_fee
 
-    # 3) Get OAuth token from PayPal
     token_url = f"https://api.{ 'sandbox.' if PAYPAL_MODE=='sandbox' else '' }paypal.com/v1/oauth2/token"
     payment_url = f"https://api.{ 'sandbox.' if PAYPAL_MODE=='sandbox' else '' }paypal.com/v1/payments/payment"
 
@@ -341,7 +315,6 @@ def checkout():
         return redirect(url_for('cart_bp.view_cart'))
 
     payment_data = payment_res.json()
-    # Find approval link
     approval_url = None
     for link in payment_data["links"]:
         if link["rel"] == "approval_url":
@@ -352,15 +325,12 @@ def checkout():
         flash("Could not find PayPal approval link.")
         return redirect(url_for('cart_bp.view_cart'))
 
-    # store payment ID + total in session
+   
     session['paypal_payment_id'] = payment_data['id']
     session['checkout_total'] = total
 
     return redirect(approval_url)
 
-########################################
-# PAYPAL SUCCESS
-########################################
 @cart_bp.route('/paypal_success')
 @user_required
 def paypal_success():
@@ -377,7 +347,6 @@ def paypal_success():
         flash("Payment mismatch or missing payment info.")
         return redirect(url_for('cart_bp.view_cart'))
 
-    # Execute payment
     token_url = f"https://api.{ 'sandbox.' if PAYPAL_MODE=='sandbox' else '' }paypal.com/v1/oauth2/token"
     creds = f"{PAYPAL_CLIENT_ID}:{PAYPAL_CLIENT_SECRET}"
     encoded_creds = base64.b64encode(creds.encode()).decode()
@@ -413,7 +382,6 @@ def paypal_success():
         with create_connection() as conn:
             cursor = conn.cursor()
 
-            # 1) Insert into purchases
             cursor.execute("""
                 INSERT INTO purchases(user_id, payment_amount, payment_date, payment_status, paypal_transaction_id)
                 VALUES (?, ?, ?, ?, ?)
@@ -426,7 +394,6 @@ def paypal_success():
             ))
             purchase_id = cursor.lastrowid
 
-            # 2) Move cart items => purchase_items
             cursor.execute("SELECT id FROM cart WHERE user_id=?", (user_id,))
             cart_row = cursor.fetchone()
             if cart_row:
@@ -441,28 +408,27 @@ def paypal_success():
                 for item in cart_items:
                     book_id = item[0]
                     qty = item[1]
-                    # find current price
+                   
                     cursor.execute("SELECT price FROM books WHERE id=?", (book_id,))
                     row = cursor.fetchone()
                     price_now = row[0] if row else 0
 
-                    # insert purchase_items
+                   
                     cursor.execute("""
                         INSERT INTO purchase_items(purchase_id, book_id, quantity, price_at_purchase)
                         VALUES (?, ?, ?, ?)
                     """, (purchase_id, book_id, qty, price_now))
 
-                    # reduce stock
+                    
                     cursor.execute("""
                         UPDATE books
                         SET quantity = quantity - ?
                         WHERE id = ?
                     """, (qty, book_id))
 
-                # clear cart
+                
                 cursor.execute("DELETE FROM cart_items WHERE cart_id=?", (cart_id,))
 
-            # 3) If delivery => create a row in 'deliveries'
             method = session.get('delivery_method', 'pickup')
             if method == 'delivery':
                 address = session.get('delivery_address', '')
@@ -473,7 +439,6 @@ def paypal_success():
 
             conn.commit()
 
-        # Clear session
         session.pop('paypal_payment_id', None)
         session.pop('checkout_total', None)
         session.pop('delivery_method', None)
@@ -485,9 +450,6 @@ def paypal_success():
         flash("Payment not approved.")
         return redirect(url_for('cart_bp.view_cart'))
 
-########################################
-# PAYPAL CANCEL
-########################################
 @cart_bp.route('/paypal_cancel')
 @user_required
 def paypal_cancel():
