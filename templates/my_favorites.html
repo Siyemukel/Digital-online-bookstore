@@ -1,0 +1,38 @@
+<!-- templates/my_favorites.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Favorite Books</title>
+</head>
+<body>
+    <h2>My Favorite Books</h2>
+    {% if fav_books %}
+      <ul>
+      {% for b in fav_books %}
+        <!-- b => (id, title, author, cover_image) -->
+        <li>
+          {% if b[3] %}
+            <img src="data:image/jpeg;base64,{{ b[3]|b64encode }}" alt="Cover" width="80" height="100">
+          {% else %}
+            [No Cover]
+          {% endif %}
+          <strong>{{ b[1] }}</strong> by {{ b[2] }}
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>You have no favorites yet.</p>
+    {% endif %}
+    <p><a href="{{ url_for('mybooks_bp.my_books') }}">Back to My Books</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>

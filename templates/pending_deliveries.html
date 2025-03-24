@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pending Deliveries</title>
+</head>
+<body>
+  <h2>Pending Deliveries (Staff)</h2>
+  <p><a href="{{ url_for('user_bp.user_home2') }}">Back to Home</a></p>
+  <hr>
+
+  {% if pending_list %}
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Delivery ID</th>
+          <th>Purchase ID</th>
+          <th>Status</th>
+          <th>Address</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in pending_list %}
+          <!-- d => (id, purchase_id, status, address) -->
+          <tr>
+            <td>{{ d[0] }}</td>
+            <td>{{ d[1] }}</td>
+            <td>{{ d[2] }}</td>
+            <td>{{ d[3] }}</td>
+            <td>
+              <a href="{{ url_for('delivery_bp.view_pending_delivery', delivery_id=d[0]) }}">
+                View Order
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No pending deliveries found.</p>
+  {% endif %}
+
+  {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+      <ul>
+      {% for m in msgs %}
+        <li>{{ m }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</body>
+</html>

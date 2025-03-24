@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Analysis</title>
+    <!-- Load Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Sales Analysis</h2>
+
+    <!-- Show total revenue -->
+    <p><strong>Total Revenue:</strong> ${{ total_revenue }}</p>
+
+    <!-- Daily Sales Line Chart -->
+    <h3>Daily Sales</h3>
+    <canvas id="dailySalesChart" width="400" height="200"></canvas>
+
+    <!-- Most Purchased Books Bar Chart -->
+    <h3>Most Purchased Books</h3>
+    <canvas id="mostBoughtChart" width="400" height="200"></canvas>
+
+    <p><a href="{{ url_for('login_bp.staff_home') }}">Back to Staff Home</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <script>
+      // Prepare daily sales data
+      const dailyRows = JSON.parse('{{ daily_rows|tojson }}'); 
+      // dailyRows => [ [dayString, total], [dayString, total], ...]
+
+      const dailyLabels = dailyRows.map(row => row[0]);
+      const dailyData = dailyRows.map(row => row[1]);
+
+      // Render Daily Sales Chart (Line)
+      const ctxDaily = document.getElementById('dailySalesChart').getContext('2d');
+      new Chart(ctxDaily, {
+        type: 'line',
+        data: {
+          labels: dailyLabels,
+          datasets: [{
+            label: 'Daily Revenue',
+            data: dailyData,
+            borderColor: 'blue',
+            backgroundColor: 'rgba(0,0,255,0.1)',
+            fill: true,
+          }]
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // Prepare most purchased books data
+      const mostBoughtRows = JSON.parse('{{ most_bought_rows|tojson }}');
+      // mostBoughtRows => [ [title, qty], [title, qty], ... ]
+
+      const bookLabels = mostBoughtRows.map(row => row[0]);
+      const bookData = mostBoughtRows.map(row => row[1]);
+
+      // Render Most Purchased Books Chart (Bar)
+      const ctxBooks = document.getElementById('mostBoughtChart').getContext('2d');
+      new Chart(ctxBooks, {
+        type: 'bar',
+        data: {
+          labels: bookLabels,
+          datasets: [{
+            label: 'Quantity Sold',
+            data: bookData,
+            backgroundColor: 'orange'
+          }]
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    </script>
+</body>
+</html>

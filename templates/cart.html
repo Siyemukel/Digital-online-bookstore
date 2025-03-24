@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Cart</title>
+    <style>
+      .book-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .book-card {
+        border: 1px solid #ccc;
+        padding: 10px;
+        width: 180px;
+        text-align: center;
+      }
+      img {
+        width: 100px;
+        height: 120px;
+        object-fit: cover;
+      }
+    </style>
+</head>
+<body>
+    <h2>My Cart</h2>
+    {% if items %}
+      <div class="book-row">
+        {% for item in items %}
+          <!-- item => (cart_item_id=0, book_id=1, title=2, price=3, cover=4, cart_qty=5, stock=6) -->
+          <div class="book-card">
+            {% if item[4] %}
+              <img src="data:image/jpeg;base64,{{ item[4]|b64encode }}" alt="Cover">
+            {% else %}
+              <p>No Cover</p>
+            {% endif %}
+            <p>{{ item[2] }}</p> <!-- title -->
+            <p>Price: ${{ item[3] }}</p>
+            <p>Qty: {{ item[5] }}</p>
+            <p>Stock: {{ item[6] }}</p>
+
+            <!-- Increase/Decrease Buttons -->
+            <form method="POST" action="{{ url_for('cart_bp.increase_quantity', cart_item_id=item[0]) }}" style="display:inline;">
+              <button type="submit">+</button>
+            </form>
+            <form method="POST" action="{{ url_for('cart_bp.decrease_quantity', cart_item_id=item[0]) }}" style="display:inline;">
+              <button type="submit">-</button>
+            </form>
+            <br><br>
+
+            <form method="POST" action="{{ url_for('cart_bp.remove_item', cart_item_id=item[0]) }}">
+              <button type="submit">Remove</button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+      <p><strong>Total:</strong> ${{ total }}</p>
+
+      <form method="POST" action="{{ url_for('cart_bp.clear_cart') }}">
+        <button type="submit">Clear Cart</button>
+      </form>
+
+      <!-- Delivery Method Radio Buttons + Proceed button -->
+      <h3>Delivery or Pickup?</h3>
+      <form method="POST" action="{{ url_for('cart_bp.select_delivery_method') }}">
+        <label>
+          <input type="radio" name="delivery_method" value="pickup"
+                 {% if delivery_method == 'pickup' %}checked{% endif %}>
+          Pickup (no delivery fee)
+        </label><br>
+        <label>
+          <input type="radio" name="delivery_method" value="delivery"
+                 {% if delivery_method == 'delivery' %}checked{% endif %}>
+          Delivery (R30 fee)
+        </label><br><br>
+
+        <button type="submit">Proceed</button>
+      </form>
+
+    {% else %}
+      <p>Your cart is empty.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('user_bp.user_home2') }}">continue shoping</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>

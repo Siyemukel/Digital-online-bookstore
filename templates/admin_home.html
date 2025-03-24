@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Home</title>
+</head>
+<body>
+    <h2>Welcome to the Admin Home Page!</h2>
+    <p>You are logged in as Admin (hard-coded user).</p>
+
+    <p>
+     
+      <a href="{{ url_for('staffreg_bp.register_staff') }}">Register New Staff</a>
+    </p>
+
+    <p>
+     
+      <a href="{{ url_for('staffreg_bp.staff_management') }}">Manage Staff</a>
+    </p>
+
+    <p><a href="{{ url_for('staffreg_bp.driver_management') }}">Manage Drivers</a></p>
+
+    <p><a href="{{ url_for('staffreg_bp.register_driver') }}">Register New Driver</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>
