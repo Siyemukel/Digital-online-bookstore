@@ -1,0 +1,60 @@
+<!-- templates/driver_home.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Driver Home</title>
+</head>
+<body>
+  <h2>Driver Home</h2>
+  <p>Welcome, Driver!</p>
+  
+  {% if deliveries %}
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Delivery ID</th>
+          <th>Purchase ID</th>
+          <th>Status</th>
+          <th>Address</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in deliveries %}
+          <!-- d => (id, purchase_id, status, address) -->
+          <tr>
+            <td>{{ d[0] }}</td>
+            <td>{{ d[1] }}</td>
+            <td>{{ d[2] }}</td>
+            <td>{{ d[3] }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('delivery_bp.start_delivery', delivery_id=d[0]) }}">
+                {% if d[2] in ['Pending', 'Driver Assigned'] %}
+                  <button type="submit">Start Order</button>
+                {% elif d[2] == 'pick up confirmed' %}
+                  <button type="submit">Continue Order</button>
+                {% else %}
+                  <!-- If some other status, no button or disabled -->
+                  <button type="button" disabled>Not Available</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No deliveries assigned or all are delivered!</p>
+  {% endif %}
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enter Delivery Address</title>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjAOTlvfmvmY2SGZSdR54_3LNda2B4xp0&libraries=places"></script>
+    <script>
+    function initAutocomplete() {
+      var input = document.getElementById('address');
+      var autocomplete = new google.maps.places.Autocomplete(input);
+    }
+    </script>
+</head>
+<body onload="initAutocomplete()">
+    <h2>Delivery Address</h2>
+    <form method="POST">
+        <label>Address:</label><br>
+        <input type="text" id="address" name="address" style="width:300px;"><br><br>
+        <button type="submit">Proceed to Payment</button>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>

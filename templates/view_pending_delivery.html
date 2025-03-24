@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Pending Delivery</title>
+  <style>
+    .book-cover {
+      width: 80px;
+      height: 100px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <h2>Pending Delivery #{{ delivery_id }}</h2>
+  <p>Purchase ID: {{ purchase_id }}</p>
+  <p>Delivery Address: {{ address }}</p>
+  <hr>
+
+  <h3>Items in this Purchase:</h3>
+  {% if items %}
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Cover</th>
+          <th>Title</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <!-- item => (cover_image, title, quantity) -->
+          <tr>
+            <td>
+              {% if item[0] %}
+                <img src="data:image/jpeg;base64,{{ item[0]|b64encode }}" alt="Cover" class="book-cover">
+              {% else %}
+                No Cover
+              {% endif %}
+            </td>
+            <td>{{ item[1] }}</td>
+            <td>{{ item[2] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No items found.</p>
+  {% endif %}
+
+  <hr>
+  <h3>Assign Driver:</h3>
+  <form method="POST" action="{{ url_for('delivery_bp.assign_driver', delivery_id=delivery_id) }}">
+    <label for="driver_id">Select Driver:</label>
+    <select name="driver_id" id="driver_id">
+      <option value="">-- Select Driver --</option>
+      {% for dr in drivers %}
+        <!-- dr => (driver_id, driver_email) -->
+        <option value="{{ dr[0] }}">{{ dr[1] }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Assign</button>
+  </form>
+
+  <p><a href="{{ url_for('delivery_bp.pending_deliveries') }}">Back to Pending Deliveries</a></p>
+
+  {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+      <ul>
+      {% for m in msgs %}
+        <li>{{ m }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</body>
+</html>

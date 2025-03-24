@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register New Staff</title>
+</head>
+<body>
+    <h2>Register New Staff</h2>
+    <form method="POST">
+        <label>Email:</label>
+        <input type="email" name="email" required><br><br>
+
+        <label>Password:</label>
+        <input type="password" name="password" required><br><br>
+
+        <label>First Name:</label>
+        <input type="text" name="first_name" required><br><br>
+
+        <label>Last Name:</label>
+        <input type="text" name="last_name" required><br><br>
+
+        <label>Phone:</label>
+        <input type="text" name="phone" required><br><br>
+
+        <button type="submit">Create Staff</button>
+    </form>
+
+    <p><a href="{{ url_for('staffreg_bp.staff_management') }}">Go to Staff Management</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>
