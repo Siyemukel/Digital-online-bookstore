@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
     update_db_schema()
 
-    from register import register_bp
+    from register import accounts_bp
     app.register_blueprint(register_bp)
 
     from login import login_bp
